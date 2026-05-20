@@ -1,0 +1,17 @@
+#include "include/graphics_operations.hpp"
+#include <cmath>
+
+void rotate_point(Vector2& point, const Vector2& origin, float angle) {
+  
+  float x_at_origin = (point.x - origin.x);
+  float y_at_origin = (point.y - origin.y);
+
+  point.x = origin.x + x_at_origin * cos(angle) - y_at_origin * sin(angle);
+  point.y = origin.y + x_at_origin * sin(angle) + y_at_origin * cos(angle);
+
+}
+
+void translate_point(Vector2& point, const Vector2& force) {
+  point = Vector2Add(point, force);
+
+};
