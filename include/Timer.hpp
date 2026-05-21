@@ -3,12 +3,15 @@
 
 #include <cstdint>
 #include <stdexcept>
+#include <iostream>
+#include <functional>
+
 class Timer {
   public:
       Timer(float interval_seconds , uint32_t fps_count):
       m_interval ( static_cast<uint32_t>(interval_seconds * fps_count) ) {};
-  
-    void on_expiry(void (*callback)() ) {
+    
+    void on_expiry(std::function<void()> callback ) {
       m_callback = callback;
     }
 
@@ -23,12 +26,16 @@ class Timer {
       m_current_frame ++;
     };
 
+    void reset() {
+      m_current_frame = 0;
+    }
+
   private:
 
     uint32_t m_current_frame {};
     uint32_t m_interval {};
 
-    void (*m_callback)() = nullptr;
+    std::function<void()> m_callback = nullptr;
 };
 
 
