@@ -37,8 +37,14 @@ class Asteroid : public Triangle{
       this->rotate(m_rotation_intensity);
     }
 
-    void spawn() {};
-    
+    void shrink() {
+      m_size = static_cast<Size>(
+        static_cast<uint8_t>(m_size) / 2
+      );
+      
+      m_vertices.clear();
+      generate_corners(center_distance(m_size));
+    } 
 
   private:
     

@@ -15,3 +15,7 @@ void translate_point(Vector2& point, const Vector2& force) {
   point = Vector2Add(point, force);
 
 };
+
+Vector2 calculate_normal(const Vector2& side) {
+  return {side.y, -side.x};
+}

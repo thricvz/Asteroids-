@@ -1,8 +1,10 @@
 #ifndef ASTEROIDMANAGER_H
 #define ASTEROIDMANAGER_H
 
-#include "Asteroids.hpp"
 #include "../../include/Timer.hpp"
+#include "../../include/CollisionManager.hpp"
+#include "Asteroids.hpp"
+#include "BulletManager.hpp"
 
 #include <atomic>
 #include <iostream>
@@ -27,6 +29,16 @@ class AsteroidManager {
           asteroid.draw();
         }
     }
+
+    void handle_collsions(const BulletManager& bullet_manager) {
+        for (auto& asteroid : m_asteroids) {
+          for (auto& bullet : bullet_manager.m_bullets) {
+            if (CollisionManager::are_colliding(asteroid, bullet) ) {
+              asteroid.shrink();
+            } 
+          } 
+        } 
+    };
 
     void spawn_asteroid() {
       const auto spawn_circle_radius {
@@ -76,12 +88,13 @@ class AsteroidManager {
         case 1:  return Asteroid::Size::MEDIUM;
         case 2:  return Asteroid::Size::BIG;
       }
+
     };
 
     float random_asteroid_speed() {
       return std::max(static_cast<float>(rand() % 5), 0.7f); 
     }
-
+  
 
     Vector2 random_center_deviation() {
       const Vector2 center{SCREEN_WIDTH/2. , SCREEN_HEIGHT/2.};

@@ -2,9 +2,10 @@
 #define TRIANGLE_H
 
 #include "../graphics_operations.hpp"
+#include "Polygon.hpp"
 #include <array>
 
-class Triangle {
+class Triangle : public Polygon{
   
   public:
     Triangle(const Vector2& center, float side, const Color& color) : 
@@ -15,38 +16,38 @@ class Triangle {
 
 
     void draw() {
-      DrawTriangleLines(m_corners[0], m_corners[1], m_corners[2], m_color);
+      DrawTriangleLines(m_vertices[0], m_vertices[1], m_vertices[2], m_color);
     }
 
 
     void translate(const Vector2& movement_force) {
       translate_point(m_center, movement_force);
 
-      for (auto& corner : m_corners) {
+      for (auto& corner : m_vertices) {
         translate_point(corner, movement_force);
       }
     }
 
     void rotate(float angle) {
-      for (auto& corner : m_corners) {
+      for (auto& corner : m_vertices) {
         rotate_point(corner, m_center, angle);
       }
     }
 
-  private:
+  protected:
     void generate_corners(float side) {
-      
-      m_corners[0] = Vector2Add(m_center, Vector2{-side, side});
-      m_corners[1] = Vector2Add(m_center, Vector2{ side, side});
-      m_corners[2] = Vector2Add(m_center, Vector2{ 0, -side });
+      m_vertices.reserve(3);
+      m_vertices.push_back( Vector2Add(m_center, Vector2{-side, side}) );
+      m_vertices.push_back( Vector2Add(m_center, Vector2{ side, side}) );
+      m_vertices.push_back( Vector2Add(m_center, Vector2{ 0, -side })  );
     }
 
 
-  protected:
-    Vector2 m_center {};
-    std::array<Vector2, 3> m_corners {};
-    Color m_color {};
     float m_side {};
+
+  public :
+    Vector2 m_center {};
+    Color m_color {};
 };
 
 #endif
