@@ -20,9 +20,6 @@ class BulletManager {
       for (auto& bullet: m_bullets) {
         bullet.translate(Vector2Scale(bullet.direction , m_bullet_speed));
 
-        for (auto vertex: bullet.m_vertices) {
-          DrawCircleV(vertex, 2, RED);
-        }
         DrawCircleV(bullet.center, bullet.radius, m_bullet_color);
       }
     }
