@@ -14,6 +14,7 @@
 class Asteroid : public Triangle{
   public:
     enum class Size{
+      DESTROYED = 0,
       SMALL = 1,
       MEDIUM = 2,
       BIG = 4
@@ -38,13 +39,22 @@ class Asteroid : public Triangle{
     }
 
     void shrink() {
-      m_size = static_cast<Size>(
-        static_cast<uint8_t>(m_size) / 2
-      );
-      
+      if (m_size == Size::SMALL) {
+          m_size = Size::DESTROYED;
+
+      } else {
+        m_size = static_cast<Size>(
+          static_cast<uint8_t>(m_size) / 2
+        );
+      } 
+       
       m_vertices.clear();
       generate_corners(center_distance(m_size));
     } 
+
+    bool should_be_destroyed() const {
+      return (m_size == Size::DESTROYED) || out_of_bounds();
+    }
 
   private:
     

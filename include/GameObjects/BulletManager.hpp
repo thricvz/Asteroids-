@@ -28,12 +28,27 @@ class BulletManager {
       m_bullets.emplace_back(position, radius, direction);
     }
 
+    void clean_up() {
+      auto delete_start = std::remove_if(m_bullets.begin(), m_bullets.end(), 
+          [](const Bullet& bullet){
+            return bullet.should_be_destroyed();
+      });
+    
+      m_bullets.erase(delete_start, m_bullets.end());
+      
+    }
+
   private:
     struct Bullet : Circle{
        Bullet(const Vector2& _position, float radius, const Vector2& _direction) 
          : direction(_direction),
           Circle(_position, radius) {};
        Vector2 direction;
+
+      bool should_be_destroyed() const {
+        return has_collided || out_of_bounds(); 
+      } 
+      bool has_collided {false};
     };
 
 

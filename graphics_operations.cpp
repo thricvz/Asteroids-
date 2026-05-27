@@ -19,3 +19,10 @@ void translate_point(Vector2& point, const Vector2& force) {
 Vector2 calculate_normal(const Vector2& side) {
   return {side.y, -side.x};
 }
+
+bool is_out_of_bounds(const Vector2& position, int32_t margin) {
+  return (position.x < (0 - margin)) ||
+         (position.x > (SCREEN_WIDTH + margin )) ||
+         (position.y < (0 - margin)) ||
+         (position.y > (SCREEN_HEIGHT + margin)); 
+}

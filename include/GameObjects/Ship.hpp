@@ -2,23 +2,41 @@
 #define SHIP_H
 
 
+#include "AsteroidManager.hpp"
 #include "Triangle.hpp"
 #include "../Timer.hpp"
+#include <algorithm>
+
+using namespace std::literals;
 
 class Ship : public Triangle {
   public: 
+    static inline Color SHIP_COLOR{BLUE};
+    static inline Color IMMUNE_COLOR{GREEN};
+
     Ship(const Vector2& start_position, float width, BulletManager* bullets_manager) : 
-      Triangle(start_position, width / 2., BLUE) ,
+      Triangle(start_position, width / 2., SHIP_COLOR) ,
       m_bullets_manager(bullets_manager),
-      m_ammo_recharge_timer(0.1, FRAME_RATE) 
+      m_ammo_recharge_timer(0.1, FRAME_RATE),
+      m_immunity_timer(2, FRAME_RATE) 
     {
       m_ammo_recharge_timer.on_expiry([this](){
         this->recharge_ammo();
       });
-
+      
+      m_immunity_timer.on_expiry([this]() {
+        this->disable_immunity();
+      });
     };
 
+  void display_info() {
+    std::string lives_left_str = "Lives : "s + std::to_string(m_lives);
+    DrawText( lives_left_str.c_str(), 5, 5, 20, RAYWHITE ) ;
 
+    if(m_immune) {
+        DrawText( "Immune", 5, 30, 20, IMMUNE_COLOR ) ;
+    }
+  }
 
   void update() {
     point_in_mouse_direction();
@@ -26,6 +44,41 @@ class Ship : public Triangle {
     shoot();
     m_ammo_recharge_timer.keep_up();
   }
+
+  void handle_collisions(const AsteroidManager* asteroid_manager) {
+    if (m_immune) {
+      m_immunity_timer.keep_up();
+      return;
+    }
+    const auto& asteroid_begin = asteroid_manager->m_asteroids.begin();
+    const auto& asteroid_end = asteroid_manager->m_asteroids.end();
+
+    auto collided_with_ship = [this](const Asteroid& asteroid) {
+        return CollisionManager::are_colliding(*this, asteroid) ;
+    };
+
+    if (std::any_of(asteroid_begin, asteroid_end, collided_with_ship)) {
+      m_lives--;
+      enable_immunity();
+      m_immunity_timer.reset();
+
+    }
+
+  }
+
+  bool is_destroyed() const {
+    return m_lives == 0;
+  }
+  
+  void disable_immunity() {
+    m_immune = false;
+    m_color = SHIP_COLOR;
+  } 
+
+  void enable_immunity() {
+    m_immune = true;
+    m_color = IMMUNE_COLOR;
+  } 
 
   private:
     void point_in_mouse_direction() {
@@ -119,16 +172,17 @@ class Ship : public Triangle {
         translate(movement_direction);
     }
 
-    bool is_out_of_bounds(const Vector2& position) const {
-      return false;
-    }
 
-    BulletManager* const m_bullets_manager;
     Vector2 m_direction{ 0, -1};
-    float m_speed{10.f};
-
-    uint8_t m_ammo{1};
+    BulletManager* const m_bullets_manager;
     Timer m_ammo_recharge_timer;     
+    Timer m_immunity_timer;     
+      
+    float m_speed{10.f};
+    
+    bool m_immune{false};
+    uint8_t m_ammo{1};
+    int8_t m_lives{3};
 };
 
 #endif

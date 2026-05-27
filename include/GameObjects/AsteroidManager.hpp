@@ -12,8 +12,11 @@
 #include <cstdint>
 #include <cmath>
 
+class Ship;
+
 
 class AsteroidManager {
+  friend Ship;
   public:
     Timer spawn_timer;
 
@@ -30,21 +33,32 @@ class AsteroidManager {
         }
     }
 
-    void handle_collsions(const BulletManager& bullet_manager) {
+    void handle_collsions(BulletManager& bullet_manager) {
         for (auto& asteroid : m_asteroids) {
           for (auto& bullet : bullet_manager.m_bullets) {
             if (CollisionManager::are_colliding(asteroid, bullet) ) {
               asteroid.shrink();
+              bullet.has_collided = true;
             } 
           } 
         } 
     };
+  
+    void clean_up() {
+      auto delete_start = std::remove_if(m_asteroids.begin(), m_asteroids.end(), 
+          [](const Asteroid& asteroid){
+            return asteroid.should_be_destroyed();
+      });
+    
+      m_asteroids.erase(delete_start, m_asteroids.end());
+      
+    }
 
     void spawn_asteroid() {
       const auto spawn_circle_radius {
         std::max(
-          SCREEN_HEIGHT / 2,
-          SCREEN_WIDTH / 2
+          SCREEN_WIDTH / 2 ,
+          SCREEN_HEIGHT / 2
         )
       };
 

@@ -1,8 +1,6 @@
 #include "include/GameObjects/BulletManager.hpp"
-#define FRAME_RATE 30
-#define SCREEN_WIDTH 1000
-#define SCREEN_HEIGHT 800
 
+#include "include/Config.hpp"
 #include "raylib.h"
 #include "raymath.h"
 
@@ -37,18 +35,38 @@ int main(void)
     {
         BeginDrawing();
           
-        thousand_sunny.update(); 
-       
-          
-        thousand_sunny.draw();
-        bullets.draw();
-        asteroids->draw();
+        if (! thousand_sunny.is_destroyed()) {
+          thousand_sunny.update(); 
+          thousand_sunny.display_info();
 
-        asteroids->handle_collsions(bullets);
+          thousand_sunny.draw();
+          bullets.draw();
+          asteroids->draw();
 
-        asteroids->spawn_timer.keep_up();
 
-        ClearBackground(BLACK);
+          thousand_sunny.handle_collisions(asteroids);
+          asteroids->handle_collsions(bullets);
+
+          asteroids->spawn_timer.keep_up();
+
+          bullets.clean_up();
+          asteroids->clean_up();
+          ClearBackground(BLACK);
+
+        } else {
+          const std::string game_end_message("You died dummy");
+          const int32_t font_size {20};
+          const int32_t x_offset = (game_end_message.size() / 2) * font_size;
+
+          DrawText(
+              game_end_message.c_str(),
+              screen_center.x - x_offset ,
+              screen_center.y - font_size,
+              font_size,
+              RED
+          );
+        }
+
         EndDrawing();
     }
 
